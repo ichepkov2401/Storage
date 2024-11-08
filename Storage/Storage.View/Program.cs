@@ -152,33 +152,37 @@ namespace Storage.View
                             Console.WriteLine("2 - Read");
                             Console.WriteLine("3 - Update");
                             Console.WriteLine("4 - Delete");
-                            switch (Console.ReadLine())
+                            try
                             {
-                                case "1":
-                                    await palletService.Add(InputPalletDto());
-                                    break;
-                                case "2":
-                                    {
-                                        foreach (Pallet pallet in await palletService.GetAll())
+                                switch (Console.ReadLine())
+                                {
+                                    case "1":
+                                        await palletService.Add(InputPalletDto());
+                                        break;
+                                    case "2":
                                         {
-                                            Console.WriteLine(pallet);
+                                            foreach (Pallet pallet in await palletService.GetAll())
+                                            {
+                                                Console.WriteLine(pallet);
+                                            }
                                         }
-                                    }
-                                    break;
-                                case "3":
-                                    {
-                                        Console.Write($"Номер обновляемого паллета - ");
-                                        int id = int.Parse(Console.ReadLine());
-                                        await palletService.Update(InputPalletDto(), id);
-                                    }
-                                    break;
-                                case "4":
-                                    {
-                                        Console.Write($"Номер удаляемого паллета - ");
-                                        await palletService.Delete(int.Parse(Console.ReadLine()));
-                                    }
-                                    break;
+                                        break;
+                                    case "3":
+                                        {
+                                            Console.Write($"Номер обновляемого паллета - ");
+                                            int id = int.Parse(Console.ReadLine());
+                                            await palletService.Update(InputPalletDto(), id);
+                                        }
+                                        break;
+                                    case "4":
+                                        {
+                                            Console.Write($"Номер удаляемого паллета - ");
+                                            await palletService.Delete(int.Parse(Console.ReadLine()));
+                                        }
+                                        break;
+                                }
                             }
+                            catch (ArgumentException ex) { Console.WriteLine(ex.Message); }
                             break;
                         }
                     case "2":
@@ -187,33 +191,37 @@ namespace Storage.View
                             Console.WriteLine("2 - Read");
                             Console.WriteLine("3 - Update");
                             Console.WriteLine("4 - Delete");
-                            switch (Console.ReadLine())
+                            try
                             {
-                                case "1":
-                                    await boxService.Add(InputBoxDto());
-                                    break;
-                                case "2":
-                                    {
-                                        foreach (Box box in await boxService.GetAll())
+                                switch (Console.ReadLine())
+                                {
+                                    case "1":
+                                        await boxService.Add(InputBoxDto());
+                                        break;
+                                    case "2":
                                         {
-                                            Console.WriteLine(box);
+                                            foreach (Box box in await boxService.GetAll())
+                                            {
+                                                Console.WriteLine(box);
+                                            }
                                         }
-                                    }
-                                    break;
-                                case "3":
-                                    {
-                                        Console.Write($"Номер обновляемой коробки - ");
-                                        int id = int.Parse(Console.ReadLine());
-                                        await boxService.Update(InputBoxDto(), id);
-                                    }
-                                    break;
-                                case "4":
-                                    {
-                                        Console.Write($"Номер удаляемой коробки - ");
-                                        await boxService.Delete(int.Parse(Console.ReadLine()));
-                                    }
-                                    break;
+                                        break;
+                                    case "3":
+                                        {
+                                            Console.Write($"Номер обновляемой коробки - ");
+                                            int id = int.Parse(Console.ReadLine());
+                                            await boxService.Update(InputBoxDto(), id);
+                                        }
+                                        break;
+                                    case "4":
+                                        {
+                                            Console.Write($"Номер удаляемой коробки - ");
+                                            await boxService.Delete(int.Parse(Console.ReadLine()));
+                                        }
+                                        break;
+                                }
                             }
+                            catch (ArgumentException ex) { Console.WriteLine(ex.Message); }
                             break;
                         }
                     case "3":

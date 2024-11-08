@@ -14,7 +14,7 @@ namespace Storage.View
         public AutoMapProfile()
         {
             CreateMap<PalletDto, Pallet>();
-            CreateMap<BoxDto, Box>();
+            CreateMap<BoxDto, Box>().AfterMap((src, dest) => { if (src.ExpirationDate.HasValue) dest.ExpirationDateSet = src.ExpirationDate.Value; });
         }
     }
 }

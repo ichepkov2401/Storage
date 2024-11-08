@@ -39,7 +39,12 @@ namespace Storage.Bl.Service
         }
 
         public async Task Delete(int id)
-            => await storageRepository.Delete(await GetById(id));
+        {
+            Pallet pallet = await GetById(id);
+            if (pallet.RealBoxes.Count() > 0)
+                throw new ArgumentException("Нельзя убрать со склада паллет, пока на нем стоят коробки");
+            await storageRepository.Delete(pallet);
+        }
 
         public async Task<List<List<Pallet>>> GetSortedPallet(List<Pallet> pallets = null)
         {
