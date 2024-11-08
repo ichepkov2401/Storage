@@ -15,9 +15,7 @@
         // Представленные ниже свойства имеют смысл, если в системе потенциально (например в будущем) возможно обращение к производным классам по имени абстрактного
         // Иначе от них можно отказаться в пользу упращения кода.
 
-        public abstract double Weight { get; }
-
-        public abstract DateTime ExpirationDate { get; }
+        public abstract DateTime? ExpirationDate { get; }
 
         public abstract double Volume { get; }
     }

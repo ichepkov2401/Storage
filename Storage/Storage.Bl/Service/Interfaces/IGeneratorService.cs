@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Storage.Bl.Service.Interfaces
 {
-    internal interface IGeneratorService
+    public interface IGeneratorService
     {
         /// <summary>
         /// Генератор паллетов

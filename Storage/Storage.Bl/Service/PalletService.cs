@@ -3,15 +3,16 @@ using Storage.Bl.Service.Interfaces;
 using Storage.Data.Entity;
 using Storage.Data.Models;
 using Storage.Data.Repositories;
+using System.Linq.Expressions;
 
 namespace Storage.Bl.Service
 {
-    class PalletService : IPalletService
+    public class PalletService : IPalletService
     {
         IStorageRepository storageRepository;
         IMapper mapper;
 
-        PalletService(IStorageRepository storageRepository,
+        public PalletService(IStorageRepository storageRepository,
             IMapper mapper)
         {
             this.storageRepository = storageRepository;
@@ -24,10 +25,10 @@ namespace Storage.Bl.Service
         }
 
         public async Task<Pallet> GetById(int id)
-            => await storageRepository.GetOne<Pallet>(x => x.Id == id);
+            => await storageRepository.GetOne<Pallet>(x => x.Id == id, [x => x.Boxes]);
 
         public async Task<IQueryable<Pallet>> GetAll()
-            => await storageRepository.Get<Pallet>();
+            => await storageRepository.Get<Pallet>(null, null, null, null, [x => x.Boxes]);
 
 
         public async Task Update(PalletDto palletDto, int id)
@@ -40,25 +41,25 @@ namespace Storage.Bl.Service
         public async Task Delete(int id)
             => await storageRepository.Delete(await GetById(id));
 
-        public async Task<IQueryable<IOrderedEnumerable<Pallet>>> GetSortedPallet(IQueryable<Pallet> pallets = null)
+        public async Task<List<List<Pallet>>> GetSortedPallet(List<Pallet> pallets = null)
         {
             if (pallets == null)
-                pallets = await storageRepository.Get<Pallet>();
+                pallets = (await storageRepository.Get<Pallet>(null, null, null, null, [x => x.Boxes])).ToList();
             return pallets.GroupBy(x => x.ExpirationDate)
                 .OrderBy(x => x.Key)
-                .Select(x => x.OrderBy(y => y.Weight));
+                .Select(x => x.OrderBy(y => y.Weight).ToList()).ToList();
         }
 
-        public async Task<IOrderedQueryable<Pallet>> GetLongestLifePallets()
+        public async Task<List<Pallet>> GetLongestLifePallets()
         {
-            return (await storageRepository.Get<Pallet>(null,
-                x => x.OrderByDescending(y => y.ExpirationDate), 0, 3))
-                .OrderBy(x => x.Volume);
+            return (await storageRepository.Get<Pallet>(null, null, null, null, [x => x.Boxes])).ToList()
+                .OrderByDescending(y => y.ExpirationDate).Take(3)
+                .OrderBy(x => x.Volume).ToList();
         }
 
-        public IOrderedQueryable<Pallet> GetLongestLifePallets(IQueryable<Pallet> pallets)
+        public List<Pallet> GetLongestLifePallets(List<Pallet> pallets)
         {
-            return pallets.OrderByDescending(y => y.ExpirationDate).Take(3).OrderBy(x => x.Volume);
+            return pallets.OrderByDescending(y => y.ExpirationDate).Take(3).OrderBy(x => x.Volume).ToList();
         }
     }
 }

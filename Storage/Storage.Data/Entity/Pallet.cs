@@ -1,4 +1,7 @@
-﻿namespace Storage.Data.Entity
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+
+namespace Storage.Data.Entity
 {
     /// <summary>
     /// Сущность паллета на складе.
@@ -7,12 +10,20 @@
     {
         const double BASE_PALLET_WEIGHT = 30;
 
-        public override DateTime ExpirationDate => Boxes.Min(x => x.ExpirationDate);
+        public override DateTime? ExpirationDate => RealBoxes.Min(x => x.ExpirationDate);
 
-        public override double Volume => Boxes.Sum(x => x.Volume) + Width * Height * Deep;
+        public override double Volume => RealBoxes.Sum(x => x.Volume) + Width * Height * Deep;
 
-        public override double Weight => Boxes.Sum(x => x.Weight) + 30;
+        public double Weight => RealBoxes.Sum(x => x.Weight) + 30;
 
-        public ICollection<Box> Boxes { get; set; } = new List<Box>();
+        public virtual ICollection<Box> Boxes { get; } = new List<Box>();
+
+        [NotMapped]
+        public IEnumerable<Box> RealBoxes => Boxes.Where(x => !x.DeletedDate.HasValue);
+
+        public override string ToString()
+        {
+            return $"Паллет номер - {Id}, Масса - {Weight}, Объем - {Volume}{RealBoxes.Aggregate("", (x, y) => x + $"\n    {y}")}";
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace Storage.Bl.Service
     public class GeneratorService : IGeneratorService
     {
         readonly Random random = new Random(1);
+        readonly DateTime start = new DateTime(2000, 1, 1);
 
         public Pallet[] GeneratePallets()
         {
@@ -34,29 +35,44 @@ namespace Storage.Bl.Service
             Box[] boxes = new Box[(int)(GetNaturalRandom(100))];
             for (int i = 0; i < boxes.Length;)
             {
-                boxes[i] = GenerateBox(i + 1, GetNaturalRandom(4), GetNaturalRandom(2), GetNaturalRandom(4), pallets);
+                double width, deep;
+                while (true)
+                {
+                    width = GetNaturalRandom(4);
+                    deep = GetNaturalRandom(4);
+                    if (pallets.Any(x => x.Deep >= deep && x.Width >= width))
+                        break;
+                }
+                Pallet[] goodPallet = pallets.Where(x => x.Deep >= deep && x.Width >= width).ToArray();
+                boxes[i] = GenerateBox(i + 1, width , GetNaturalRandom(2), deep, GetNaturalRandom(30), goodPallet);
                 // Унификация коробок (несколько может быть с одинаковыми параметрами)
-                int count = random.Next(1, boxes.Length - i);
+                int count = random.Next(1, Math.Max(1, (boxes.Length - i) / 2));
                 for (int j = 1; j < count; j++)
                 {
-                    boxes[i + j] = GenerateBox(i + j, boxes[i].Width, boxes[i].Height, boxes[i].Deep, pallets);
+                    boxes[i + j] = GenerateBox(i + j, width, boxes[i].Height, deep, boxes[i].Weight, goodPallet);
                 }
                 i += count;
             }
             return boxes;
         }
 
-        private Box GenerateBox(int id, double width, double height, double deep, Pallet[] pallets)
+        private Box GenerateBox(int id, double width, double height, double deep, double weight, Pallet[] pallets)
         {
             Box box;
             while (true)
             {
-                box= new Box() { Id = id, Width = width, Height = height, Deep = deep, Pallet = pallets[random.Next(pallets.Length)] };
+                box= new Box() { Id = id, Width = width, Height = height, Deep = deep, Weight = weight, Pallet = pallets[random.Next(pallets.Length)] };
                 if (box.Deep <= box.Pallet.Deep && box.Width <= box.Pallet.Width)
                     break;
             }
             box.PalletId = box.Pallet.Id;
-            box.Pallet.Boxes.Add(box);
+            int days = (DateTime.Now - start).Days;
+            int add = (int)GetNaturalRandom(days * 2);
+            if (add > days) add = days * 2 - add;
+            if (random.Next(2) == 0)
+                box.ProductionDate = start.AddDays(add);
+            else
+                box.ExpirationDateSet = start.AddDays(add);
             return box;
         }
 

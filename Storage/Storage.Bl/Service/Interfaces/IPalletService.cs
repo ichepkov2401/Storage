@@ -26,16 +26,16 @@ namespace Storage.Bl.Service.Interfaces
         /// <summary>
         /// Сгруппировать все паллеты по сроку годности, отсортировать по возрастанию срока годности, в каждой группе отсортировать паллеты по весу.
         /// </summary>
-        public Task<IQueryable<IOrderedEnumerable<Pallet>>> GetSortedPallet(IQueryable<Pallet> pallets = null);
+        public Task<List<List<Pallet>>> GetSortedPallet(List<Pallet> pallets = null);
 
         /// <summary>
         /// 3 паллеты, которые содержат коробки с наибольшим сроком годности, отсортированные по возрастанию объема.
         /// </summary>
-        public Task<IOrderedQueryable<Pallet>> GetLongestLifePallets();
+        public Task<List<Pallet>> GetLongestLifePallets();
 
         /// <summary>
         /// 3 паллеты, которые содержат коробки с наибольшим сроком годности, отсортированные по возрастанию объема.
         /// </summary>
-        public IOrderedQueryable<Pallet> GetLongestLifePallets(IQueryable<Pallet> pallets);
+        public List<Pallet> GetLongestLifePallets(List<Pallet> pallets);
     }
 }

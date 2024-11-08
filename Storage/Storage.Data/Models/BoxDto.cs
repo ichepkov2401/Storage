@@ -20,5 +20,6 @@ namespace Storage.Data.Models
 
         public double Deep { get; set; }
 
+        public double Weight { get; set; }
     }
 }

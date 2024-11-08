@@ -9,9 +9,9 @@ namespace Storage.Data.Repositories
     {
         private readonly StorageDbContext _context;
 
-        public StorageRepository(StorageDbContext context)
+        public StorageRepository()
         {
-            _context = context;
+            _context = new StorageDbContext();
         }
 
         public async Task<IQueryable<TEntity>> Get<TEntity>(

@@ -12,13 +12,13 @@ namespace Storage.Data.Entity
         [ForeignKey(nameof(PalletId))]
         public int PalletId { get; set; }
 
-        public Pallet Pallet { get; set; }
+        public virtual Pallet Pallet { get; set; }
 
         public DateTime? ProductionDate { get; set; }
 
         // Ленивое вычисление.
 
-        public override DateTime ExpirationDate
+        public override DateTime? ExpirationDate
         {
             get
             {
@@ -28,8 +28,18 @@ namespace Storage.Data.Entity
             }
         }
 
+        public DateTime ExpirationDateSet
+        {
+            set => expirationDate = value;
+        }
+
         public override double Volume => Width * Height * Deep;
 
-        public override double Weight { get; }
+        public double Weight { get; set; }
+
+        public override string ToString()
+        {
+            return $"Коробка #{Id}, Масса - {Weight}, Объем - {Volume}, Срок годности - {ExpirationDate.Value.ToString("dd.MM.yyyy")}";
+        }
     }
 }
