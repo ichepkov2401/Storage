@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Storage.Data.Models
+﻿namespace Storage.Data.Models.Input
 {
-    public class BoxDto
+    public class BoxInputDto
     {
         public int PalletId { get; set; }
 

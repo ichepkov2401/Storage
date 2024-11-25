@@ -1,6 +1,7 @@
 ﻿using Autofac;
+using AutoMapper;
 
-namespace Storage.View
+namespace Storage.View.Configuration
 {
     internal class AutofacIntegration
     {
@@ -10,6 +11,17 @@ namespace Storage.View
             var builder = new ContainerBuilder();
             builder.RegisterModule(new AutofacConfig());
             Container = builder.Build();
+            var mapperConfiguration = Container.Resolve<MapperConfiguration>();
+#if DEBUG
+            try
+            {
+                mapperConfiguration.AssertConfigurationIsValid();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+#endif
         }
         public static T GetInstance<T>()
         {

@@ -5,28 +5,37 @@ using System.Linq.Expressions;
 
 namespace Storage.Data.Repositories
 {
-    public class StorageRepository : IStorageRepository
+    public class StorageFileRepository : IStorageRepository
     {
-        private readonly StorageDbContext context;
+        private static StorageFileContext context = null;
 
-        public StorageRepository(string connection)
+        public StorageFileRepository(string connection) 
         {
-            context = new StorageDbContext(connection);
+            if (context == null)
+                context = new StorageFileContext(connection);
         }
 
-        public async Task<IQueryable<TEntity>> Get<TEntity>(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-            int? skip = null,
-            int? take = null,
-            ICollection<Expression<Func<TEntity, object>>> includes = null) where TEntity : class, IBaseEntity
+
+        async Task IStorageRepository.Add<TEntity>(TEntity entity)
+        {
+            List<TEntity> set = context.Set<TEntity>();
+            set.Add(entity);
+            entity.CreatedDate = DateTime.UtcNow;
+            context.SaveChanges();
+        }
+
+        async Task IStorageRepository.Delete<TEntity>(TEntity entity)
+        {
+            entity.DeletedDate = DateTime.UtcNow;
+            context.SaveChanges();
+        }
+
+        async Task<IQueryable<TEntity>> IStorageRepository.Get<TEntity>(Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy, int? skip, int? take, ICollection<Expression<Func<TEntity, object>>> includes)
         {
             return Prepare(filter, orderBy, skip, take, includes);
         }
 
-        public async Task<TEntity> GetOne<TEntity>(
-            Expression<Func<TEntity, bool>> filter,
-            ICollection<Expression<Func<TEntity, object>>> includes = null) where TEntity : class, IBaseEntity
+        async Task<TEntity> IStorageRepository.GetOne<TEntity>(Expression<Func<TEntity, bool>> filter, ICollection<Expression<Func<TEntity, object>>> includes)
         {
             IQueryable<TEntity> set = Prepare(filter, null, null, null, includes);
             if (set.Count() > 1)
@@ -42,24 +51,10 @@ namespace Storage.Data.Repositories
             return null;
         }
 
-        public async Task Add<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
-        {
-            DbSet<TEntity> set = context.Set<TEntity>();
-            set.Add(entity);
-            entity.CreatedDate = DateTime.UtcNow;
-            await context.SaveChangesAsync();
-        }
-
-        public async Task Update<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
+        async Task IStorageRepository.Update<TEntity>(TEntity entity)
         {
             entity.ModifiedDate = DateTime.UtcNow;
-            await context.SaveChangesAsync();
-        }
-
-        public async Task Delete<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
-        {
-            entity.DeletedDate = DateTime.UtcNow;
-            await context.SaveChangesAsync();
+            context.SaveChanges();
         }
 
         private IQueryable<TEntity> Prepare<TEntity>(
@@ -69,7 +64,7 @@ namespace Storage.Data.Repositories
             int? take = null,
             ICollection<Expression<Func<TEntity, object>>> includes = null) where TEntity : class, IBaseEntity
         {
-            IQueryable<TEntity> set = context.Set<TEntity>();
+            IQueryable<TEntity> set = context.Set<TEntity>().AsQueryable();
             set = set.Where(x => !x.DeletedDate.HasValue);
             if (filter != null)
             {

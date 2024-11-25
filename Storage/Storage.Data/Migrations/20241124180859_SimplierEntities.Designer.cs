@@ -11,8 +11,8 @@ using Storage.Data.Contexts;
 namespace Storage.Data.Migrations
 {
     [DbContext(typeof(StorageDbContext))]
-    [Migration("20241107195036_Init-Migration")]
-    partial class InitMigration
+    [Migration("20241124180859_SimplierEntities")]
+    partial class SimplierEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,6 +35,9 @@ namespace Storage.Data.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("ExpirationDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<double>("Height")
                         .HasColumnType("REAL");
 
@@ -47,12 +50,11 @@ namespace Storage.Data.Migrations
                     b.Property<DateTime?>("ProductionDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<double>("Width")
+                    b.Property<double>("Weight")
                         .HasColumnType("REAL");
 
-                    b.Property<DateTime?>("expirationDate")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("ExpirationDate");
+                    b.Property<double>("Width")
+                        .HasColumnType("REAL");
 
                     b.HasKey("Id");
 

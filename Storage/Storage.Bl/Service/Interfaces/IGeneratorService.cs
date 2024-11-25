@@ -1,9 +1,4 @@
-﻿using Storage.Data.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Storage.Data.Models.Input;
 
 namespace Storage.Bl.Service.Interfaces
 {
@@ -12,12 +7,12 @@ namespace Storage.Bl.Service.Interfaces
         /// <summary>
         /// Генератор паллетов
         /// </summary>
-        public Pallet[] GeneratePallets();
+        public PalletInputDto[] GeneratePallets();
 
         /// <summary>
         /// Генератор коробок
         /// </summary>
         /// <param name="pallets">Палетты на которые будут раздожены коробки</param>
-        public Box[] GenerateBoxes(Pallet[] pallets);
+        public BoxInputDto[] GenerateBoxes(PalletInputDto[] pallets);
     }
 }

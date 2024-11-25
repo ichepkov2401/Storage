@@ -3,7 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Storage.Data;
+using Storage.Data.Contexts;
 
 #nullable disable
 
@@ -32,6 +32,9 @@ namespace Storage.Data.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("ExpirationDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<double>("Height")
                         .HasColumnType("REAL");
 
@@ -49,10 +52,6 @@ namespace Storage.Data.Migrations
 
                     b.Property<double>("Width")
                         .HasColumnType("REAL");
-
-                    b.Property<DateTime?>("expirationDate")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("ExpirationDate");
 
                     b.HasKey("Id");
 

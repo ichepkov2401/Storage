@@ -1,25 +1,26 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Storage.Data.Entity;
 
-namespace Storage.Data
+namespace Storage.Data.Contexts
 {
     public class StorageDbContext : DbContext
     {
+        private string connection; 
+        public StorageDbContext(string connection)
+        {
+            this.connection = connection;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=Storage.db");
+            optionsBuilder.UseSqlite(connection);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Box>()
-                .Property("expirationDate")
-                .IsRequired(false)
-                .HasField("expirationDate")
-                .HasColumnName("ExpirationDate");
-
+            modelBuilder.Entity<Box>();
             modelBuilder.Entity<Pallet>();
         }
 

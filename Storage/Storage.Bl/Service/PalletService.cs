@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Storage.Bl.Service.Interfaces;
 using Storage.Data.Entity;
-using Storage.Data.Models;
+using Storage.Data.Models.Input;
+using Storage.Data.Models.Output;
 using Storage.Data.Repositories;
-using System.Linq.Expressions;
 
 namespace Storage.Bl.Service
 {
@@ -12,26 +12,46 @@ namespace Storage.Bl.Service
         IStorageRepository storageRepository;
         IMapper mapper;
 
+        public class AutoMapProfile : Profile
+        {
+            public AutoMapProfile()
+            {
+                CreateMap<PalletInputDto, Pallet>()
+                    .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width))
+                    .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height))
+                    .ForMember(dest => dest.Deep, opt => opt.MapFrom(src => src.Deep));
+                CreateMap<Pallet, PalletOutputDto>()
+                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                    .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.GetWeight()))
+                    .ForMember(dest => dest.Volume, opt => opt.MapFrom(src => src.GetVolume()))
+                    .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width))
+                    .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height))
+                    .ForMember(dest => dest.Deep, opt => opt.MapFrom(src => src.Deep))
+                    .ForMember(dest => dest.ExpirationDate, opt => opt.MapFrom(src => src.GetExpirationDate()))
+                    .AfterMap((src, dest, context) => dest.Boxes = context.Mapper.Map<BoxOutputDto[]>(src.RealBoxes));
+            }
+        }
+
         public PalletService(IStorageRepository storageRepository,
-            IMapper mapper)
+                IMapper mapper)
         {
             this.storageRepository = storageRepository;
             this.mapper = mapper;
         }
 
-        public async Task Add(PalletDto palletDto)
+        public async Task Add(PalletInputDto palletDto)
         {
-            await storageRepository.Add(mapper.Map<PalletDto, Pallet>(palletDto));
+            await storageRepository.Add(mapper.Map<PalletInputDto, Pallet>(palletDto));
         }
 
         public async Task<Pallet> GetById(int id)
             => await storageRepository.GetOne<Pallet>(x => x.Id == id, [x => x.Boxes]);
 
-        public async Task<IQueryable<Pallet>> GetAll()
-            => await storageRepository.Get<Pallet>(null, null, null, null, [x => x.Boxes]);
+        public async Task<PalletOutputDto[]> GetAll()
+            => mapper.Map<PalletOutputDto[]>((await storageRepository.Get<Pallet>(null, null, null, null, [x => x.Boxes])).ToList());
 
 
-        public async Task Update(PalletDto palletDto, int id)
+        public async Task Update(PalletInputDto palletDto, int id)
         {
             Pallet pallet = await GetById(id);
             mapper.Map(palletDto, pallet);
@@ -46,25 +66,51 @@ namespace Storage.Bl.Service
             await storageRepository.Delete(pallet);
         }
 
-        public async Task<List<List<Pallet>>> GetSortedPallet(List<Pallet> pallets = null)
+        public async Task<List<List<PalletOutputDto>>> GetSortedPallet((PalletInputDto[], BoxInputDto[])? dataSourse = null)
         {
-            if (pallets == null)
-                pallets = (await storageRepository.Get<Pallet>(null, null, null, null, [x => x.Boxes])).ToList();
-            return pallets.GroupBy(x => x.ExpirationDate)
-                .OrderBy(x => x.Key)
-                .Select(x => x.OrderBy(y => y.Weight).ToList()).ToList();
+            IQueryable<Pallet> pallets;
+            if (dataSourse.HasValue)
+                pallets = PrepareData(dataSourse.Value).Item1;
+            else
+                pallets = await storageRepository.Get<Pallet>(null, null, null, null, [x => x.Boxes]);
+            var grouped = pallets.GroupBy(x => x.Boxes.Where(y => !y.DeletedDate.HasValue).Min(y => (y.ExpirationDate)));
+            var selected = grouped.Select(x => new
+            {
+                x.Key,
+                Value = x.OrderBy(y => y.Boxes.Where(z => !z.DeletedDate.HasValue)
+                                                .Sum(z => z.Weight) + Constants.BASE_PALLET_WEIGHT).ToList()
+            });
+            return selected.OrderBy(x => x.Key).ToList().ConvertAll(x => mapper.Map<List<PalletOutputDto>>(x.Value));
         }
 
-        public async Task<List<Pallet>> GetLongestLifePallets()
+        public async Task<List<PalletOutputDto>> GetLongestLifePallets((PalletInputDto[], BoxInputDto[])? dataSourse = null)
         {
-            return (await storageRepository.Get<Pallet>(null, null, null, null, [x => x.Boxes])).ToList()
-                .OrderByDescending(y => y.ExpirationDate).Take(3)
-                .OrderBy(x => x.Volume).ToList();
+            IQueryable<Pallet> pallets;
+            if (dataSourse.HasValue)
+                pallets = PrepareData(dataSourse.Value).Item1;
+            else
+                pallets = await storageRepository.Get<Pallet>(null, null, null, null, [x => x.Boxes]);
+            var ordered = pallets.OrderByDescending(x => x.Boxes.Where(y => !y.DeletedDate.HasValue).Min(y => y.ExpirationDate));
+            return mapper.Map<List<PalletOutputDto>>(ordered.Take(3)
+                .OrderBy(x => x.Width * x.Height * x.Deep 
+                        + x.Boxes.Where(y => !y.DeletedDate.HasValue).Sum(y => y.Width * y.Height * y.Deep)).ToList());
         }
 
-        public List<Pallet> GetLongestLifePallets(List<Pallet> pallets)
+        private (IQueryable<Pallet>, IQueryable<Box>) PrepareData((PalletInputDto[], BoxInputDto[]) dataSource)
         {
-            return pallets.OrderByDescending(y => y.ExpirationDate).Take(3).OrderBy(x => x.Volume).ToList();
+            Pallet[] pallets = mapper.Map<Pallet[]>(dataSource.Item1);
+            Box[] boxes = mapper.Map<Box[]>(dataSource.Item2);
+            for (int i = 0; i < pallets.Length; i++)
+            {
+                pallets[i].Id = i + 1;
+            }
+            for (int i = 0; i < boxes.Length; i++)
+            {
+                boxes[i].Id = i + 1;
+                boxes[i].Pallet = pallets[boxes[i].PalletId];
+                boxes[i].Pallet.Boxes.Add(boxes[i]);
+            }
+            return (pallets.AsQueryable(), boxes.AsQueryable());
         }
     }
 }
