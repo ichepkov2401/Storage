@@ -8,11 +8,8 @@ namespace Storage.Data.Entity
     /// </summary>
     public class Box : StorageUnitEntity
     {
-
-        [ForeignKey(nameof(PalletId))]
         public int PalletId { get; set; }
-
-        [JsonIgnore]
+        
         public virtual Pallet Pallet { get; set; }
 
         public DateTime? ProductionDate { get; set; }

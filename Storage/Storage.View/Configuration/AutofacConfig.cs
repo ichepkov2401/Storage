@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
-using Storage.Bl.Service;
-using Storage.Bl.Service.Interfaces;
+using Storage.BusinessLogic.Service;
+using Storage.BusinessLogic.Service.Interfaces;
 using Storage.Data.Repositories;
 
 namespace Storage.View.Configuration
@@ -13,11 +13,15 @@ namespace Storage.View.Configuration
             switch (Config.Configuration["ConnectionStrings:Provider"])
             {
                 case ProviderConstants.Json:
-                    builder.RegisterType<StorageFileRepository>().As<IStorageRepository>().WithParameter("connection", Config.Configuration["ConnectionStrings:Connection"]);
+                    {
+                        builder.RegisterType<StorageFileRepository>().As<IStorageRepository>().WithParameter("connection", Config.Configuration["ConnectionStrings:Connection"]);
+                    }
                     break;
                 case ProviderConstants.SqLite:
                 default:
-                    builder.RegisterType<StorageRepository>().As<IStorageRepository>().WithParameter("connection", Config.Configuration["ConnectionStrings:Connection"]);
+                    {
+                        builder.RegisterType<StorageDbRepository>().As<IStorageRepository>().WithParameter("connection", Config.Configuration["ConnectionStrings:Connection"]);
+                    }
                     break;
             }
             builder.RegisterType<BoxService>().As<IBoxService>();

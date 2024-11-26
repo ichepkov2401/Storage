@@ -1,33 +1,33 @@
-﻿using Storage.Bl.Service.Interfaces;
+﻿using Storage.BusinessLogic.Service.Interfaces;
 using Storage.Data.Models.Input;
 
-namespace Storage.Bl.Service
+namespace Storage.BusinessLogic.Service
 {
     public class GeneratorService : IGeneratorService
     {
         readonly Random random = new Random(1);
         readonly DateTime start = new DateTime(2020, 1, 1);
 
-        public PalletInputDto[] GeneratePallets()
+        public PalletRequest[] GeneratePallets()
         {
-            PalletInputDto[] pallets = new PalletInputDto[(int)GetNaturalRandom(10)];
+            PalletRequest[] pallets = new PalletRequest[(int)GetNaturalRandom(10)];
             for (int i = 0; i < pallets.Length;)
             {
-                pallets[i] = new PalletInputDto() { Width = GetNaturalRandom(14), Height = GetNaturalRandom(6), Deep = GetNaturalRandom(14) };
+                pallets[i] = new PalletRequest() { Width = GetNaturalRandom(14), Height = GetNaturalRandom(6), Deep = GetNaturalRandom(14) };
                 // Унификация паллетов (несколько может быть с одинаковыми параметрами)
                 int count = random.Next(1, pallets.Length - i);
                 for (int j = 1; j < count; j++)
                 {
-                    pallets[i + j] = new PalletInputDto() { Width = pallets[i].Width, Height = pallets[i].Height, Deep = pallets[i].Deep };
+                    pallets[i + j] = new PalletRequest() { Width = pallets[i].Width, Height = pallets[i].Height, Deep = pallets[i].Deep };
                 }
                 i += count;
             }
             return pallets;
         }
 
-        public BoxInputDto[] GenerateBoxes(PalletInputDto[] pallets)
+        public BoxRequest[] GenerateBoxes(PalletRequest[] pallets)
         {
-            BoxInputDto[] boxes = new BoxInputDto[(int)(GetNaturalRandom(100))];
+            BoxRequest[] boxes = new BoxRequest[(int)(GetNaturalRandom(100))];
             for (int i = 0; i < boxes.Length;)
             {
                 double width, deep;
@@ -38,7 +38,7 @@ namespace Storage.Bl.Service
                     if (pallets.Any(x => x.Deep >= deep && x.Width >= width))
                         break;
                 }
-                PalletInputDto[] goodPallet = pallets.Where(x => x.Deep >= deep && x.Width >= width).ToArray();
+                PalletRequest[] goodPallet = pallets.Where(x => x.Deep >= deep && x.Width >= width).ToArray();
                 boxes[i] = GenerateBox(i + 1, width, GetNaturalRandom(2), deep, GetNaturalRandom(30), goodPallet);
                 // Унификация коробок (несколько может быть с одинаковыми параметрами)
                 int count = random.Next(1, Math.Max(1, (boxes.Length - i) / 2));
@@ -61,13 +61,13 @@ namespace Storage.Bl.Service
         /// <param name="weight">Вес коробки</param>
         /// <param name="pallets">Палеты на которые может быть размещена коробка</param>
         /// <returns></returns>
-        private BoxInputDto GenerateBox(int id, double width, double height, double deep, double weight, PalletInputDto[] pallets)
+        private BoxRequest GenerateBox(int id, double width, double height, double deep, double weight, PalletRequest[] pallets)
         {
-            BoxInputDto box;
+            BoxRequest box;
             while (true)
             {
-                box = new BoxInputDto() { Width = width, Height = height, Deep = deep, Weight = weight, PalletId = random.Next(pallets.Length) };
-                if (box.Deep <= pallets[box.PalletId].Deep && box.Width <= pallets[box.PalletId].Width)
+                box = new BoxRequest() { Width = width, Height = height, Depth = deep, Weight = weight, PalletId = random.Next(pallets.Length) };
+                if (box.Depth <= pallets[box.PalletId].Deep && box.Width <= pallets[box.PalletId].Width)
                     break;
             }
             int days = (DateTime.Now - start).Days;

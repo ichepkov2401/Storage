@@ -1,6 +1,6 @@
 ﻿using Storage.Data.Entity;
 
-namespace Storage.Bl
+namespace Storage.BusinessLogic
 {
     public static class BoxExtetions
     {
@@ -20,6 +20,6 @@ namespace Storage.Bl
         /// </summary>
         /// <param name="box">Коробка</param>
         public static double GetVolume(this Box box)
-            => box.Width * box.Height * box.Deep;
+            => box.Width * box.Height * box.Depth;
     }
 }

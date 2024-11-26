@@ -1,4 +1,4 @@
-﻿using Storage.Bl.Service.Interfaces;
+﻿using Storage.BusinessLogic.Service.Interfaces;
 using Storage.Data.Models.Output;
 using Storage.View.Configuration;
 
@@ -23,7 +23,7 @@ namespace Storage.View.Controllers
                         break;
                     case "2":
                         {
-                            foreach (BoxOutputDto box in await boxService.GetAll())
+                            foreach (BoxResponse box in await boxService.GetAll())
                             {
                                 Console.WriteLine(ViewTools.ToString(box));
                             }

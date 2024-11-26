@@ -1,18 +1,21 @@
 ﻿using Storage.Data.Models.Input;
 
-namespace Storage.Bl.Service.Interfaces
+namespace Storage.BusinessLogic.Service.Interfaces
 {
+    /// <summary>
+    /// Сервис генераии данных
+    /// </summary>
     public interface IGeneratorService
     {
         /// <summary>
         /// Генератор паллетов
         /// </summary>
-        public PalletInputDto[] GeneratePallets();
+        public PalletRequest[] GeneratePallets();
 
         /// <summary>
         /// Генератор коробок
         /// </summary>
         /// <param name="pallets">Палетты на которые будут раздожены коробки</param>
-        public BoxInputDto[] GenerateBoxes(PalletInputDto[] pallets);
+        public BoxRequest[] GenerateBoxes(PalletRequest[] pallets);
     }
 }

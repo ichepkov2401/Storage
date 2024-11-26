@@ -8,12 +8,9 @@ namespace Storage.Data.Entity
     /// </summary>
     public class Pallet : StorageUnitEntity
     {
-
-        [JsonIgnore]
+        
         public virtual ICollection<Box> Boxes { get; } = new List<Box>();
-
-        [JsonIgnore]
-        [NotMapped]
+        
         public IEnumerable<Box> RealBoxes => Boxes.Where(x => !x.DeletedDate.HasValue);
     }
 }

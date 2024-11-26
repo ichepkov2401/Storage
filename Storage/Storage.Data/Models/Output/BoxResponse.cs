@@ -1,7 +1,9 @@
-﻿namespace Storage.Data.Models.Input
+﻿namespace Storage.Data.Models.Output
 {
-    public class BoxInputDto
+    public class BoxResponse
     {
+        public int Id { get; set; }
+
         public int PalletId { get; set; }
 
         public DateTime? ExpirationDate { get; set; }
@@ -12,8 +14,10 @@
 
         public double Height { get; set; }
 
-        public double Deep { get; set; }
+        public double Depth { get; set; }
 
         public double Weight { get; set; }
+
+        public double Volume { get; set; }
     }
 }

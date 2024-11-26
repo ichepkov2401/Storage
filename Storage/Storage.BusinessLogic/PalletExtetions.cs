@@ -1,6 +1,7 @@
-﻿using Storage.Data.Entity;
+﻿using Storage.Bl;
+using Storage.Data.Entity;
 
-namespace Storage.Bl
+namespace Storage.BusinessLogic
 {
     public static class PalletExtetions
     {
@@ -14,7 +15,7 @@ namespace Storage.Bl
         /// Объем занимаемый паллетой
         /// </summary>
         public static double GetVolume(this Pallet pallet)
-            => pallet.RealBoxes.Sum(x => x.GetVolume()) + pallet.Width * pallet.Height * pallet.Deep;
+            => pallet.RealBoxes.Sum(x => x.GetVolume()) + pallet.Width * pallet.Height * pallet.Depth;
 
         /// <summary>
         /// Масса паллеты (вместе с коробками на ней)

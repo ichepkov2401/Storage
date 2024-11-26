@@ -1,4 +1,4 @@
-﻿using Storage.Bl.Service.Interfaces;
+﻿using Storage.BusinessLogic.Service.Interfaces;
 using Storage.Data.Models.Output;
 using Storage.View.Configuration;
 
@@ -22,7 +22,7 @@ namespace Storage.View.Controllers
                         break;
                     case "2":
                         {
-                            foreach (PalletOutputDto pallet in await palletService.GetAll())
+                            foreach (PalletResponse pallet in await palletService.GetAll())
                             {
                                 Console.WriteLine(ViewTools.ToString(pallet));
                             }

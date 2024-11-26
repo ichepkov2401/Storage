@@ -1,6 +1,6 @@
 ﻿namespace Storage.Data.Models.Output
 {
-    public class PalletOutputDto
+    public class PalletResponse
     {
         public int Id { get; set; }
 
@@ -16,6 +16,6 @@
 
         public double Weight { get; set; }
 
-        public BoxOutputDto[] Boxes { get; set; }
+        public BoxResponse[] Boxes { get; set; }
     }
 }

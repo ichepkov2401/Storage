@@ -9,8 +9,6 @@ namespace Storage.Data.Entity
     /// <typeparam name="T">Тип идентификатора (int или GUID).</typeparam>
     public abstract class BaseEntity<T> : IBaseEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public T Id { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? ModifiedDate { get; set; }

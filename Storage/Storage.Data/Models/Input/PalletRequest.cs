@@ -1,6 +1,6 @@
 ﻿namespace Storage.Data.Models.Input
 {
-    public class PalletInputDto
+    public class PalletRequest
     {
         public double Width { get; set; }
 

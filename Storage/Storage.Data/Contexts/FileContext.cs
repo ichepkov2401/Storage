@@ -14,6 +14,7 @@ namespace Storage.Data.Contexts
         private string path;
         private List<PropertyInfo> sets = new List<PropertyInfo>();
         private List<IList> oneToMany;
+        private JsonResolver jsonResolver = new JsonResolver();
 
         /// <summary>
         /// Настройка подключения - извлечение данных из JSON хранилища
@@ -31,6 +32,7 @@ namespace Storage.Data.Contexts
                     TableNameAttribute? tableName = property.GetCustomAttribute<TableNameAttribute>();
                     if (tableName != null && ValidateProperty(property))
                     {
+                        SetIgnoreAttribute(property);
                         try
                         {
                             JToken list = data[tableName.Name];
@@ -73,6 +75,8 @@ namespace Storage.Data.Contexts
         /// </summary>
         internal void SaveChanges()
         {
+            var serializerSettings = new JsonSerializerSettings();
+            serializerSettings.ContractResolver = jsonResolver;
             using (StreamWriter writer = new StreamWriter(path))
             {
                 JObject data = new JObject();
@@ -82,6 +86,7 @@ namespace Storage.Data.Contexts
                     if (tableName != null)
                     {
                         SetId(property, tableName.Name);
+                        JsonConvert.DefaultSettings = () => serializerSettings;
                         data.Add(tableName.Name, JToken.FromObject(property.GetValue(this)));
                         data.Add($"{tableName.Name}_index", JToken.FromObject(indexes[tableName.Name]));
                     }
@@ -194,6 +199,15 @@ namespace Storage.Data.Contexts
                         }
                     }
                 }
+            }
+        }
+
+        private void SetIgnoreAttribute(PropertyInfo property)
+        {
+            JsonIgnoreStorageAttribute? jsonIgnore = property.GetCustomAttribute<JsonIgnoreStorageAttribute>();
+            if (jsonIgnore != null)
+            {
+                jsonResolver.IgnoreProperty(property.PropertyType.GenericTypeArguments[0], jsonIgnore.PropertyNames);
             }
         }
     }

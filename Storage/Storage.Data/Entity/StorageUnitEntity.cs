@@ -9,6 +9,6 @@
 
         public double Height { get; set; }
 
-        public double Deep { get; set; }
+        public double Depth { get; set; }
     }
 }

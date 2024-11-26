@@ -1,25 +1,17 @@
-﻿using Storage.Data.Entity;
-using System.Linq.Expressions;
+﻿using Storage.Data.Models.Pallet;
 
-namespace Storage.Data.Repositories
+namespace Storage.Data.Repositories;
+public interface IStorageRepository
 {
-    public interface IStorageRepository
-    {
-        public Task<IQueryable<TEntity>> Get<TEntity>(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-            int? skip = null,
-            int? take = null,
-            ICollection<Expression<Func<TEntity, object>>> includes = null) where TEntity : class, IBaseEntity;
+    /// <summary>
+    /// Сгруппировать все паллеты по сроку годности, отсортировать по возрастанию срока годности, в каждой группе отсортировать паллеты по весу.
+    /// </summary>
+    public IReadOnlyCollection<(DateTime? key, IReadOnlyList<PalletStoreModel> values)> GetSortedPallet();
 
-        public Task<TEntity> GetOne<TEntity>(
-            Expression<Func<TEntity, bool>> filter,
-            ICollection<Expression<Func<TEntity, object>>> includes = null) where TEntity : class, IBaseEntity;
 
-        public Task Add<TEntity>(TEntity entity) where TEntity : class, IBaseEntity;
-
-        public Task Update<TEntity>(TEntity entity) where TEntity : class, IBaseEntity;
-
-        public Task Delete<TEntity>(TEntity entity) where TEntity : class, IBaseEntity;
-    }
+    /// <summary>
+    /// 3 паллеты, которые содержат коробки с наибольшим сроком годности, отсортированные по возрастанию объема.
+    /// </summary>
+    public IReadOnlyCollection<PalletStoreModel> GetLongestLifePallets();
 }
+
